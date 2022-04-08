@@ -44,11 +44,11 @@ def oid_to_type(self, oid):
       return str(oid)
 
 class Registry(type):
-  printers = list()
+  printers = dict()
 
   def __init__(cls, name, bases, clsdict):
     if len(cls.mro()) > 2:
-      Registry.printers.append((name, cls))
+      Registry.printers[name] = cls
     super(Registry, cls).__init__(name, bases, clsdict)
 
 class PgObject(object, metaclass=Registry):
@@ -74,9 +74,11 @@ class PgObject(object, metaclass=Registry):
       if gdb.default_visualizer(val):
         str_val = gdb.default_visualizer(val).to_string()
 
+      elif str(f.type) == "Expr *" and str_val != "0x0":
+        str_val = gdb.default_visualizer(val.dereference()).to_string()
       elif str(f.type) == "List *" and str_val != "0x0":
         str_val = gdb.default_visualizer(val.dereference()).to_string()
-      elif str(f.type) == "Bitmapset *" and str_val != "0x0":
+      elif str(f.type) == "Relids" and str_val != "0x0":
         str_val = gdb.default_visualizer(val.dereference()).to_string()
       elif hasattr(self.__class__, 'lookup_' + f.name):
         str_val = getattr(self.__class__, 'lookup_' + f.name)(self, val)
@@ -88,11 +90,36 @@ class PgObject(object, metaclass=Registry):
 
     return "<{} {}>".format(self.pgtype.name, ", ".join(data))
 
-class Bitmapset(PgObject):
-  pgtype = gdb.lookup_type('Bitmapset')
+class Node(PgObject):
+  pgtype = gdb.lookup_type('Node')
 
   def to_string(self):
-    return "<Bitmapset>"
+    node_type = inspect_node(self.val)
+    if node_type in Registry.printers.keys():
+      return Registry.printers[node_type](self.val).to_string()
+
+    return "<{}>".format(node_type)
+
+class Expr(Node):
+  pass
+
+class Bitmapset(PgObject):
+  pgtype = gdb.lookup_type('Bitmapset')
+  bits_per_word = 64 
+
+  def to_string(self):
+    nwords = self.val['nwords']
+
+    exps = list()
+    for i in range(nwords):
+      num = self.val['words'][i]
+      for b in range(self.bits_per_word):
+        if num % 2 == 1:
+          exps.append(str(b + i * self.bits_per_word))
+
+        num = num >> 1
+
+    return "<Bitmapset {}>".format(" ".join(exps))
 
 class RelOptInfo(PgObject):
   pgtype = gdb.lookup_type('RelOptInfo')
@@ -187,7 +214,7 @@ class OidList(List):
 def register_printers():
   pp = RegexpCollectionPrettyPrinter("postgresql")
 
-  for (name, cls) in Registry.printers:
+  for (name, cls) in Registry.printers.items():
     pp.add_printer(name, "^{}$".format(name), cls)
 
   return pp
