@@ -7,6 +7,42 @@ def inspect_node(val):
   node_type = str(node['type'])
   return node_type[2:]
 
+def oid_to_type(self, oid):
+  match oid:
+    case 16:
+      return "bool"
+    case 17:
+      return "bytea"
+    case 18:
+      return "char"
+    case 19:
+      return "name"
+    case 20:
+      return "int8"
+    case 21:
+      return "int2"
+    case 22:
+      return "int2vector"
+    case 23:
+      return "int4"
+    case 25:
+      return "text"
+    case 26:
+      return "oid"
+    case 30:
+      return "oidvector"
+    case 114:
+      return "json"
+    case 194:
+      return "pg_node_tree"
+    case 700:
+      return "float4"
+    case 701:
+      return "float8"
+
+    case _:
+      return str(oid)
+
 class Registry(type):
   printers = list()
 
@@ -16,6 +52,8 @@ class Registry(type):
     super(Registry, cls).__init__(name, bases, clsdict)
 
 class PgObject(object, metaclass=Registry):
+  prefix = ""
+  skipped_fields = []
 
   def __init__(self, val):
     self.val = val.cast(self.pgtype)
@@ -23,7 +61,8 @@ class PgObject(object, metaclass=Registry):
   def to_string(self):
     data = []
     for f in self.pgtype.fields():
-      if f.name in self.skipped_fields:
+      field_name = f.name
+      if field_name in self.skipped_fields:
         continue
 
       val = self.val[f]
@@ -39,21 +78,25 @@ class PgObject(object, metaclass=Registry):
         str_val = gdb.default_visualizer(val.dereference()).to_string()
       elif str(f.type) == "Bitmapset *" and str_val != "0x0":
         str_val = gdb.default_visualizer(val.dereference()).to_string()
+      elif hasattr(self.__class__, 'lookup_' + f.name):
+        str_val = getattr(self.__class__, 'lookup_' + f.name)(self, val)
 
-      data.append("{}={}".format(f.name,str_val))
+      if self.prefix and field_name.startswith(self.prefix):
+        field_name = f.name[len(self.prefix):]
+
+      data.append("{}={}".format(field_name,str_val))
 
     return "<{} {}>".format(self.pgtype.name, ", ".join(data))
 
 class Bitmapset(PgObject):
   pgtype = gdb.lookup_type('Bitmapset')
-  skipped_fields = []
 
   def to_string(self):
     return "<Bitmapset>"
 
 class RelOptInfo(PgObject):
   pgtype = gdb.lookup_type('RelOptInfo')
-  skipped_fields = ['type']
+  skipped_fields = ['type','consider_startup','consider_param_startup','consider_parallel']
 
 class RestrictInfo(PgObject):
   pgtype = gdb.lookup_type('RestrictInfo')
@@ -61,15 +104,37 @@ class RestrictInfo(PgObject):
 
 class Const(PgObject):
   pgtype = gdb.lookup_type('Const')
+  prefix = "const"
   skipped_fields = ['constbyval','constcollid','constlen','consttypmod','location','xpr']
+
+  lookup_consttype = oid_to_type
 
 class Var(PgObject):
   pgtype = gdb.lookup_type('Var')
+  prefix = "var"
   skipped_fields = ['varnosyn','varattnosyn','vartypmod','varcollid','location','xpr']
+
+  lookup_vartype = oid_to_type
+
+  def lookup_varno(self, varno):
+    match varno:
+      case 65000:
+        return "INNER_VAR"
+      case 65001:
+        return "OUTER_VAR"
+      case 65002:
+        return "INDEX_VAR"
+      case 65003:
+        return "ROWID_VAR"
+      case _:
+        return str(varno)
 
 class OpExpr(PgObject):
   pgtype = gdb.lookup_type('OpExpr')
+  prefix = "op"
   skipped_fields = ['inputcollid','opcollid','opretset','location','xpr']
+
+  lookup_opresulttype = oid_to_type
 
 class List(PgObject):
   pgtype = gdb.lookup_type('List')
