@@ -77,7 +77,7 @@ class PgObject(object, metaclass=Registry):
 
       elif str(f.type) == "char *" and str_val != "0x0":
         str_val = repr(val.string())
-      elif str(f.type)[-2:] == " *" and str_val != "0x0":
+      elif str(f.type)[-2:] == " *" and str_val != "0x0" and gdb.default_visualizer(val.dereference()):
         str_val = gdb.default_visualizer(val.dereference()).to_string()
       elif str(f.type) == "Relids" and str_val != "0x0":
         str_val = gdb.default_visualizer(val.dereference()).to_string()
