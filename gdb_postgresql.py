@@ -5,6 +5,7 @@ import gdb
 def inspect_node(val):
   node = val.cast(gdb.lookup_type("Node"))
   node_type = str(node['type'])
+
   return node_type[2:]
 
 def oid_to_type(self, oid):
@@ -74,9 +75,9 @@ class PgObject(object, metaclass=Registry):
       if gdb.default_visualizer(val):
         str_val = gdb.default_visualizer(val).to_string()
 
-      elif str(f.type) == "Expr *" and str_val != "0x0":
-        str_val = gdb.default_visualizer(val.dereference()).to_string()
-      elif str(f.type) == "List *" and str_val != "0x0":
+      elif str(f.type) == "char *" and str_val != "0x0":
+        str_val = repr(val.string())
+      elif str(f.type)[-2:] == " *" and str_val != "0x0":
         str_val = gdb.default_visualizer(val.dereference()).to_string()
       elif str(f.type) == "Relids" and str_val != "0x0":
         str_val = gdb.default_visualizer(val.dereference()).to_string()
