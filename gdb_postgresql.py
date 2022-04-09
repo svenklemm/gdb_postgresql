@@ -104,6 +104,23 @@ class Node(PgObject):
 class Expr(Node):
   pass
 
+class Value(PgObject):
+  pgtype = gdb.lookup_type('Value')
+
+  def to_string(self):
+    node_type = inspect_node(self.val)
+    if node_type == "String":
+      return repr(self.val['val']['str'].string())
+    else:
+      return self.val['val']['ival'].string()
+
+class String(Value):
+  pass
+
+class Alias(PgObject):
+  pgtype = gdb.lookup_type('Alias')
+  skipped_fields = ['type']
+
 class Bitmapset(PgObject):
   pgtype = gdb.lookup_type('Bitmapset')
   bits_per_word = 64 
@@ -121,6 +138,10 @@ class Bitmapset(PgObject):
         num = num >> 1
 
     return "<Bitmapset {}>".format(" ".join(exps))
+
+class RangeTblEntry(PgObject):
+  pgtype = gdb.lookup_type('RangeTblEntry')
+  skipped_fields = ['type']
 
 class RelOptInfo(PgObject):
   pgtype = gdb.lookup_type('RelOptInfo')
@@ -180,7 +201,11 @@ class List(PgObject):
     for i in range(length):
       val = self.val['elements'][i]['ptr_value']
       node_val = val.cast(gdb.lookup_type('Node').pointer()).dereference()
-      typed_val = val.cast(gdb.lookup_type(inspect_node(node_val)).pointer()).dereference()
+      node_type = inspect_node(node_val)
+      if node_type == "String":
+        node_type = "Value"
+
+      typed_val = val.cast(gdb.lookup_type(node_type).pointer()).dereference()
       if gdb.default_visualizer(typed_val):
         str_val = gdb.default_visualizer(typed_val).to_string()
       else:
