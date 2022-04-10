@@ -57,6 +57,11 @@ class PgObject(object, metaclass=Registry):
   skipped_fields = []
 
   def __init__(self, val):
+    if not hasattr(self.__class__, 'typename'):
+      self.typename = self.__class__.__name__
+
+    self.pgtype = gdb.lookup_type(self.typename)
+
     self.val = val.cast(self.pgtype)
 
   def to_string(self):
@@ -92,7 +97,6 @@ class PgObject(object, metaclass=Registry):
     return "<{} {}>".format(self.pgtype.name, ", ".join(data))
 
 class Node(PgObject):
-  pgtype = gdb.lookup_type('Node')
 
   def to_string(self):
     node_type = inspect_node(self.val)
@@ -105,8 +109,6 @@ class Expr(Node):
   pass
 
 class Value(PgObject):
-  pgtype = gdb.lookup_type('Value')
-
   def to_string(self):
     node_type = inspect_node(self.val)
     if node_type == "String":
@@ -115,14 +117,13 @@ class Value(PgObject):
       return self.val['val']['ival'].string()
 
 class String(Value):
+  typename = "Value"
   pass
 
 class Alias(PgObject):
-  pgtype = gdb.lookup_type('Alias')
   skipped_fields = ['type']
 
 class Bitmapset(PgObject):
-  pgtype = gdb.lookup_type('Bitmapset')
   bits_per_word = 64 
 
   def to_string(self):
@@ -140,26 +141,21 @@ class Bitmapset(PgObject):
     return "<Bitmapset {}>".format(" ".join(exps))
 
 class RangeTblEntry(PgObject):
-  pgtype = gdb.lookup_type('RangeTblEntry')
   skipped_fields = ['type']
 
 class RelOptInfo(PgObject):
-  pgtype = gdb.lookup_type('RelOptInfo')
   skipped_fields = ['type','consider_startup','consider_param_startup','consider_parallel']
 
 class RestrictInfo(PgObject):
-  pgtype = gdb.lookup_type('RestrictInfo')
   skipped_fields = ['type']
 
 class Const(PgObject):
-  pgtype = gdb.lookup_type('Const')
   prefix = "const"
   skipped_fields = ['constbyval','constcollid','constlen','consttypmod','location','xpr']
 
   lookup_consttype = oid_to_type
 
 class Var(PgObject):
-  pgtype = gdb.lookup_type('Var')
   prefix = "var"
   skipped_fields = ['varnosyn','varattnosyn','vartypmod','varcollid','location','xpr']
 
@@ -179,14 +175,13 @@ class Var(PgObject):
         return str(varno)
 
 class OpExpr(PgObject):
-  pgtype = gdb.lookup_type('OpExpr')
   prefix = "op"
   skipped_fields = ['inputcollid','opcollid','opretset','location','xpr']
 
   lookup_opresulttype = oid_to_type
 
 class List(PgObject):
-  pgtype = gdb.lookup_type('List')
+  typename = "List"
 
   def to_string(self):
     # doublecheck this isn't IntList/OidList
