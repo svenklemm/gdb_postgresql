@@ -1,6 +1,7 @@
 
 from gdb.printing import RegexpCollectionPrettyPrinter, register_pretty_printer
 import gdb
+from traceback import print_exception
 
 def inspect_node(val):
   node = val.cast(gdb.lookup_type("Node"))
@@ -66,35 +67,40 @@ class PgObject(object, metaclass=Registry):
 
   def to_string(self):
     data = []
-    for f in self.pgtype.fields():
-      field_name = f.name
-      if field_name in self.skipped_fields:
-        continue
+    try:
+      for f in self.pgtype.fields():
+        field_name = f.name
+        if field_name in self.skipped_fields:
+          continue
 
-      val = self.val[f]
-      str_val = str(val)
+        val = self.val[f]
+        str_val = str(val)
 
-      if str_val == "0x0":
-        continue
+        if str_val == "0x0":
+          continue
 
-      if gdb.default_visualizer(val):
-        str_val = gdb.default_visualizer(val).to_string()
+        if gdb.default_visualizer(val):
+          str_val = gdb.default_visualizer(val).to_string()
+        elif str(f.type) == "void *":
+          pass
+        elif str(f.type) == "char *" and str_val != "0x0":
+          str_val = repr(val.string())
+        elif str(f.type)[-2:] == " *" and str_val != "0x0" and gdb.default_visualizer(val.dereference()):
+          str_val = gdb.default_visualizer(val.dereference()).to_string()
+        elif str(f.type) == "Relids" and str_val != "0x0":
+          str_val = gdb.default_visualizer(val.dereference()).to_string()
+        elif hasattr(self.__class__, 'lookup_' + f.name):
+          str_val = getattr(self.__class__, 'lookup_' + f.name)(self, val)
 
-      elif str(f.type) == "char *" and str_val != "0x0":
-        str_val = repr(val.string())
-      elif str(f.type)[-2:] == " *" and str_val != "0x0" and gdb.default_visualizer(val.dereference()):
-        str_val = gdb.default_visualizer(val.dereference()).to_string()
-      elif str(f.type) == "Relids" and str_val != "0x0":
-        str_val = gdb.default_visualizer(val.dereference()).to_string()
-      elif hasattr(self.__class__, 'lookup_' + f.name):
-        str_val = getattr(self.__class__, 'lookup_' + f.name)(self, val)
+        if self.prefix and field_name.startswith(self.prefix):
+          field_name = f.name[len(self.prefix):]
 
-      if self.prefix and field_name.startswith(self.prefix):
-        field_name = f.name[len(self.prefix):]
+        data.append("{}={}".format(field_name,str_val))
 
-      data.append("{}={}".format(field_name,str_val))
-
-    return "<{} {}>".format(self.pgtype.name, ", ".join(data))
+      return "<{} {}>".format(self.pgtype.name, ", ".join(data))
+    except BaseException as err:
+      print_exception(err)
+      raise
 
 class Node(PgObject):
 
@@ -118,7 +124,6 @@ class Value(PgObject):
 
 class String(Value):
   typename = "Value"
-  pass
 
 class Alias(PgObject):
   skipped_fields = ['type']
