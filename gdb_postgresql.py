@@ -55,7 +55,6 @@ class Registry(type):
 
 class PgObject(object, metaclass=Registry):
   prefix = ""
-  skipped_fields = []
 
   def __init__(self, val):
     if not hasattr(self.__class__, 'typename'):
@@ -70,7 +69,7 @@ class PgObject(object, metaclass=Registry):
     try:
       for f in self.pgtype.fields():
         field_name = f.name
-        if field_name in self.skipped_fields:
+        if hasattr(self.__class__, 'skipped_fields') and field_name in getattr(self.__class__, 'skipped_fields'):
           continue
 
         val = self.val[f]
@@ -159,6 +158,10 @@ class Const(PgObject):
   skipped_fields = ['constbyval','constcollid','constlen','consttypmod','location','xpr']
 
   lookup_consttype = oid_to_type
+
+class FuncExpr(PgObject):
+  prefix = "func"
+  skipped_fields = ['funcformat','funcvariadic','funcretset', 'funccollid', 'inputcollid', 'location', 'xpr']
 
 class Var(PgObject):
   prefix = "var"
