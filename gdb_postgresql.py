@@ -36,6 +36,9 @@ class Const(PgObject):
 
   lookup_consttype = oid_to_type
 
+class TargetEntry(PgObject):
+  skipped_fields = ['resorigcol','resorigtbl','type','xpr']
+
 class FuncExpr(PgObject):
   prefix = "func"
   skipped_fields = ['funcformat','funcvariadic','funcretset', 'funccollid', 'inputcollid', 'location', 'xpr']
