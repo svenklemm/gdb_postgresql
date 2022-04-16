@@ -25,10 +25,10 @@ class RangeTblEntry(PgObject):
   skipped_fields = ['type']
 
 class RelOptInfo(PgObject):
-  skipped_fields = ['baserestrictcost','baserestrict_min_security','consider_partitionwise_join','consider_startup','consider_param_startup','consider_parallel','type']
+  skipped_fields = ['baserestrictcost','baserestrict_min_security','consider_partitionwise_join','consider_startup','consider_param_startup','consider_parallel','has_eclass_joins','nparts','partbounds_merged','type']
 
 class RestrictInfo(PgObject):
-  skipped_fields = ['eval_cost','left_bucketsize','left_mcvfreq','mergeopfamilies','norm_selec','outer_selec','right_bucketsize','right_mcvfreq','type']
+  skipped_fields = ['eval_cost','left_bucketsize','left_mcvfreq','mergeopfamilies','norm_selec','outer_selec','outerjoin_delayed','right_bucketsize','right_mcvfreq','type']
 
 class Const(PgObject):
   prefix = "const"
