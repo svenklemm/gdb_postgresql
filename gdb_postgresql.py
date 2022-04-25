@@ -25,7 +25,7 @@ class RangeTblEntry(PgObject):
   skipped_fields = ['type']
 
 class RelOptInfo(PgObject):
-  skipped_fields = ['baserestrictcost','baserestrict_min_security','consider_partitionwise_join','consider_startup','consider_param_startup','consider_parallel','has_eclass_joins','nparts','partbounds_merged','type']
+  skipped_fields = ['allvisfrac','amflags','attr_needed','attr_widths','baserestrictcost','baserestrict_min_security','consider_partitionwise_join','consider_startup','consider_param_startup','consider_parallel','eclass_indexes','has_eclass_joins','nparts','partbounds_merged','rel_parallel_workers','type','serverid','userid','useridiscurrent']
 
 class RestrictInfo(PgObject):
   skipped_fields = ['eval_cost','left_bucketsize','left_mcvfreq','mergeopfamilies','norm_selec','outer_selec','outerjoin_delayed','right_bucketsize','right_mcvfreq','type']
@@ -35,6 +35,9 @@ class Const(PgObject):
   skipped_fields = ['constbyval','constcollid','constlen','consttypmod','location','xpr']
 
   lookup_consttype = oid_to_type
+
+class PathTarget(PgObject):
+  skipped_fields = ['cost','type','width']
 
 class TargetEntry(PgObject):
   skipped_fields = ['resorigcol','resorigtbl','type','xpr']
