@@ -12,6 +12,7 @@ class Registry(type):
 
 class PgObject(object, metaclass=Registry):
   prefix = ""
+  skipped_fields = ['type']
 
   def __init__(self, val):
     if not hasattr(self.__class__, 'typename'):
