@@ -18,6 +18,15 @@ from gdb_postgresql.bitmapset import Bitmapset
 class Expr(Node):
   pass
 
+class FromExpr(PgObject):
+  skipped_fields = ['type']
+
+class Query(PgObject):
+  skipped_fields = ['type']
+
+class RangeTblRef(PgObject):
+  skipped_fields = ['type']
+
 class Alias(PgObject):
   skipped_fields = ['type']
 
