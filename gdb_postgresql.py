@@ -54,6 +54,7 @@ class TargetEntry(PgObject):
 class FuncExpr(PgObject):
   prefix = "func"
   skipped_fields = ['funcformat','funcvariadic','funcretset', 'funccollid', 'inputcollid', 'location', 'xpr']
+  lookup_funcresulttype = oid_to_type
 
 class Var(PgObject):
   prefix = "var"
