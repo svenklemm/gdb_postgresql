@@ -63,6 +63,9 @@ class Var(PgObject):
   lookup_vartype = oid_to_type
   lookup_varno = varno_to_name
 
+class BoolExpr(PgObject):
+  skipped_fields = ['location','xpr']
+
 class OpExpr(PgObject):
   prefix = "op"
   skipped_fields = ['inputcollid','opcollid','opretset','location','xpr']
