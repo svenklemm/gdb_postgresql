@@ -69,6 +69,15 @@ class OpExpr(PgObject):
 
   lookup_opresulttype = oid_to_type
 
+class ScalarArrayOpExpr(PgObject):
+  skipped_fields = ['inputcollid','location','xpr']
+
+class ArrayExpr(PgObject):
+  skipped_fields = ['array_collid','location','xpr']
+
+  lookup_array_typeid = oid_to_type
+  lookup_element_typeid = oid_to_type
+
 def register_printers():
   pp = RegexpCollectionPrettyPrinter("postgresql")
 
