@@ -30,6 +30,9 @@ class PgObject(object, metaclass=Registry):
         if hasattr(self.__class__, 'skipped_fields') and field_name in getattr(self.__class__, 'skipped_fields'):
           continue
 
+        if field_name == 'location' and self.val[f] >= -1:
+          continue
+
         val = self.val[f]
         str_val = str(val)
 

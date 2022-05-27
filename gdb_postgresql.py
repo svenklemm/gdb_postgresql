@@ -9,7 +9,7 @@ if not script_dir in sys.path:
 from gdb.printing import RegexpCollectionPrettyPrinter, register_pretty_printer
 import gdb
 
-from gdb_postgresql.mapper import oid_to_type, varno_to_name
+from gdb_postgresql.mapper import oid_to_type, oid_to_operator, oid_to_proc, varno_to_name
 from gdb_postgresql.base import Registry, PgObject, Node, inspect_node
 from gdb_postgresql.lists import *
 from gdb_postgresql.value import *
@@ -68,8 +68,10 @@ class BoolExpr(PgObject):
 
 class OpExpr(PgObject):
   prefix = "op"
-  skipped_fields = ['inputcollid','opcollid','opretset','location','xpr']
+  skipped_fields = ['opfuncid','opresulttype','inputcollid','opcollid','opretset','xpr']
 
+  lookup_opno = oid_to_operator
+  lookup_opfuncid = oid_to_proc
   lookup_opresulttype = oid_to_type
 
 class ScalarArrayOpExpr(PgObject):
