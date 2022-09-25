@@ -5,9 +5,6 @@ from gdb_postgresql.constants.regproc import REGPROC_ASSIGNED
 
 def oid_to_type(self, oid):
   # type oids < 10000 are assigned statically by postgres so might as well include them all
-  # dictionary is produces by following query:
-  # select '{' || string_agg(format('%s:"%s"',oid,typname),',' ORDER BY oid) || '}' from pg_type WHERE oid < 10000;
-
   if int(oid) in REGTYPE_ASSIGNED:
     return REGTYPE_ASSIGNED[int(oid)]
   else:
@@ -25,6 +22,29 @@ def varno_to_name(self, varno):
       return "ROWID_VAR"
     case _:
       return str(varno)
+
+def lockmode_to_name(self, lockmode):
+  match lockmode:
+    case 0:
+      return "NoLock"
+    case 1:
+      return "AccessShareLock"
+    case 2:
+      return "RowShareLock"
+    case 3:
+      return "RowExclusiveLock"
+    case 4:
+      return "ShareUpdateExclusiveLock"
+    case 5:
+      return "ShareLock"
+    case 6:
+      return "ShareRowExclusiveLock"
+    case 7:
+      return "ExclusiveLock"
+    case 8:
+      return "AccessExclusiveLock"
+    case _:
+      return str(lockmode)
 
 def oid_to_operator(self, oid):
   if int(oid) in REGOPERATOR_ASSIGNED:

@@ -9,7 +9,7 @@ if not script_dir in sys.path:
 from gdb.printing import RegexpCollectionPrettyPrinter, register_pretty_printer
 import gdb
 
-from gdb_postgresql.mapper import oid_to_type, oid_to_operator, oid_to_proc, varno_to_name
+from gdb_postgresql.mapper import lockmode_to_name, oid_to_type, oid_to_operator, oid_to_proc, varno_to_name
 from gdb_postgresql.base import Registry, PgObject, Node, inspect_node
 from gdb_postgresql.lists import *
 from gdb_postgresql.value import *
@@ -32,6 +32,7 @@ class Alias(PgObject):
 
 class RangeTblEntry(PgObject):
   skipped_fields = ['type']
+  lookup_rellockmode = lockmode_to_name
 
 class RelOptInfo(PgObject):
   skipped_fields = ['allvisfrac','amflags','attr_needed','attr_widths','baserestrictcost','baserestrict_min_security','consider_partitionwise_join','consider_startup','consider_param_startup','consider_parallel','eclass_indexes','has_eclass_joins','nparts','partbounds_merged','rel_parallel_workers','type','serverid','userid','useridiscurrent']
