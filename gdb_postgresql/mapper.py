@@ -49,6 +49,32 @@ def lockmode_to_name(self, lockmode):
             return str(lockmode)
 
 
+def relkind_to_name(self, relkind):
+    match chr(relkind):
+        case "r":
+            return "RELATION"
+        case "i":
+            return "INDEX"
+        case "S":
+            return "SEQUENCE"
+        case "t":
+            return "TOASTVALUE"
+        case "v":
+            return "VIEW"
+        case "m":
+            return "MATVIEW"
+        case "c":
+            return "COMPOSITE_TYPE"
+        case "f":
+            return "FOREGIN_TABLE"
+        case "p":
+            return "PARTITIONED_TABLE"
+        case "I":
+            return "PARTITIONED_INDEX"
+        case _:
+            return str(relkind)
+
+
 def oid_to_operator(self, oid):
     if int(oid) in REGOPERATOR_ASSIGNED:
         return REGOPERATOR_ASSIGNED[int(oid)]

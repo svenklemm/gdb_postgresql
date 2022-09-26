@@ -10,9 +10,10 @@ import gdb
 
 from gdb_postgresql.mapper import (
     lockmode_to_name,
-    oid_to_type,
     oid_to_operator,
     oid_to_proc,
+    oid_to_type,
+    relkind_to_name,
     varno_to_name,
 )
 from gdb_postgresql.base import Registry, PgObject, Node, inspect_node
@@ -43,6 +44,7 @@ class Alias(PgObject):
 
 class RangeTblEntry(PgObject):
     skipped_fields = ["type"]
+    lookup_relkind = relkind_to_name
     lookup_rellockmode = lockmode_to_name
 
 
