@@ -31,7 +31,23 @@ class FromExpr(PgObject):
 
 
 class Query(PgObject):
-    skipped_fields = ["type"]
+    skipped_fields = ["canSetTag", "stmt_len", "type"]
+    skipped_zero = [
+        "groupDistinct",
+        "hasAggs",
+        "hasDistinctOn",
+        "hasForUpdate",
+        "hasModifyingCTE",
+        "hasRecursive",
+        "hasRowSecurity",
+        "hasSubLinks",
+        "hasTargetSRFs",
+        "hasWindowFuncs",
+        "isReturn",
+        "override",
+        "resultRelation",
+        "stmt_location",
+    ]
 
 
 class RangeTblRef(PgObject):
@@ -39,6 +55,7 @@ class RangeTblRef(PgObject):
 
 
 class Alias(PgObject):
+    prefix = "alias"
     skipped_fields = ["type"]
 
 
