@@ -44,6 +44,18 @@ class Alias(PgObject):
 
 class RangeTblEntry(PgObject):
     skipped_fields = ["type"]
+    skipped_zero = [
+        "checkAsUser",
+        "ctelevelsup",
+        "enrtuples",
+        "funcordinality",
+        "inFromCl",
+        "inh",
+        "joinmergedcols",
+        "lateral",
+        "security_barrier",
+        "self_reference",
+    ]
     lookup_relkind = relkind_to_name
     lookup_rellockmode = lockmode_to_name
 
