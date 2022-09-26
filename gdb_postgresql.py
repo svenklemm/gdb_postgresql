@@ -105,6 +105,7 @@ class PathTarget(PgObject):
 
 class TargetEntry(PgObject):
     skipped_fields = ["resorigcol", "resorigtbl", "type", "xpr"]
+    skipped_zero = ["resjunk", "ressortgroupref"]
 
 
 class FuncExpr(PgObject):
