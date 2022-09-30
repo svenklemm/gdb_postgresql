@@ -26,6 +26,10 @@ class Expr(Node):
     pass
 
 
+class EquivalenceMember(PgObject):
+    skipped_fields = ["type"]
+
+
 class FromExpr(PgObject):
     skipped_fields = ["type"]
 

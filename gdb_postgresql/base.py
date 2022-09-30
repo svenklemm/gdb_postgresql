@@ -25,9 +25,9 @@ class PgObject(object, metaclass=Registry):
 
     def to_string(self):
         data = []
-        try:
-            for f in self.pgtype.fields():
-                field_name = f.name
+        for f in self.pgtype.fields():
+            field_name = f.name
+            try:
                 if hasattr(self.__class__, "skipped_fields") and field_name in getattr(
                     self.__class__, "skipped_fields"
                 ):
@@ -71,10 +71,10 @@ class PgObject(object, metaclass=Registry):
 
                 data.append("{}={}".format(field_name, str_val))
 
-            return "<{} {}>".format(self.pgtype.name, ", ".join(data))
-        except BaseException as err:
-            print_exception(err)
-            raise
+            except BaseException as err:
+                # print_exception(err)
+                data.append("{}={}".format(field_name, "ERROR"))
+        return "<{} {}>".format(self.pgtype.name, ", ".join(data))
 
 
 class Node(PgObject):
