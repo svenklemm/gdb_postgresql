@@ -27,7 +27,13 @@ class Expr(Node):
 
 
 class EquivalenceMember(PgObject):
+    prefix = "em_"
     skipped_fields = ["type"]
+    skipped_zero = [
+        "em_is_const",
+        "em_is_child",
+    ]
+    lookup_em_datatype = oid_to_type
 
 
 class FromExpr(PgObject):
@@ -74,6 +80,9 @@ class RangeTblEntry(PgObject):
         "inh",
         "joinmergedcols",
         "lateral",
+        "perminfoindex",
+        "relid",
+        "relkind",
         "security_barrier",
         "self_reference",
     ]
@@ -119,6 +128,12 @@ class RestrictInfo(PgObject):
         "right_mcvfreq",
         "type",
     ]
+    skipped_zero = [
+        "outer_is_left",
+        "hashjoinoperator",
+        "left_hasheqoperator",
+        "right_hasheqoperator",
+    ]
 
 
 class Const(PgObject):
@@ -130,6 +145,9 @@ class Const(PgObject):
         "consttypmod",
         "location",
         "xpr",
+    ]
+    skipped_zero = [
+        "constisnull",
     ]
 
     lookup_consttype = oid_to_type
