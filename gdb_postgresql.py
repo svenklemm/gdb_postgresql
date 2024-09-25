@@ -217,6 +217,11 @@ class ArrayExpr(PgObject):
     lookup_array_typeid = oid_to_type
     lookup_element_typeid = oid_to_type
 
+class SortGroupClause(PgObject):
+    skipped_fields = ["eqop", "hashable", "nulls_first", "type"]
+
+    lookup_eqop = oid_to_operator
+    lookup_sortop = oid_to_operator
 
 def register_printers():
     pp = RegexpCollectionPrettyPrinter("postgresql")
