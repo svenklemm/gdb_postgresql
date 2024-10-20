@@ -20,8 +20,6 @@ class List(PgObject):
             val = self.val["elements"][i]["ptr_value"]
             node_val = val.cast(gdb.lookup_type("Node").pointer()).dereference()
             node_type = inspect_node(node_val)
-            if node_type == "String":
-                node_type = "Value"
 
             typed_val = val.cast(gdb.lookup_type(node_type).pointer()).dereference()
             if gdb.default_visualizer(typed_val):

@@ -9,6 +9,7 @@ class Value(PgObject):
         else:
             return self.val["val"]["ival"].string()
 
-
 class String(Value):
-    typename = "Value"
+    def to_string(self):
+        return repr(self.val["sval"].string())
+
