@@ -22,9 +22,22 @@ from gdb_postgresql.value import *
 from gdb_postgresql.bitmapset import Bitmapset
 
 
+class NameData():
+    def __init__(self, val):
+        if not hasattr(self.__class__, "typename"):
+            self.typename = self.__class__.__name__
+
+        self.pgtype = gdb.lookup_type(self.typename)
+
+        self.val = val.cast(self.pgtype)
+
+    def to_string(self):
+        return str(self.val['data']).replace('\\000','')
+
+Registry.printers["nameData"] = NameData
+
 class Expr(Node):
     pass
-
 
 class EquivalenceMember(PgObject):
     prefix = "em_"
