@@ -121,6 +121,14 @@ Registry.printers["nameData"] = NameData
 class Expr(Node):
     pass
 
+class Aggref(PgObject):
+    prefix = "agg"
+    skipped_fields = ["xpr"]
+    lookup_aggfnoid = oid_to_proc
+    lookup_aggresulttype = oid_to_type
+    lookup_aggtranstype = oid_to_type
+    lookup_aggtype = oid_to_type
+
 class EquivalenceMember(PgObject):
     prefix = "em_"
     skipped_fields = ["type"]
