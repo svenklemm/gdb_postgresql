@@ -128,6 +128,14 @@ class Aggref(PgObject):
     lookup_aggresulttype = oid_to_type
     lookup_aggtranstype = oid_to_type
     lookup_aggtype = oid_to_type
+    skipped_zero = [
+        "aggcollid",
+        "inputcollid",
+        "agglevelsup",
+        "aggpresorted",
+        "aggstar",
+        "aggvariadic",
+    ]
 
 class EquivalenceMember(PgObject):
     prefix = "em_"
