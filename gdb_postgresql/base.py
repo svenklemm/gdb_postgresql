@@ -10,7 +10,9 @@ class Registry(type):
             Registry.printers[name] = cls
         super(Registry, cls).__init__(name, bases, clsdict)
 
+
 NESTING_LEVEL = 0
+
 
 class PgObject(object, metaclass=Registry):
     prefix = ""
@@ -27,14 +29,14 @@ class PgObject(object, metaclass=Registry):
     def to_string(self):
         global NESTING_LEVEL
         data = []
-        NESTING_LEVEL+=1
+        NESTING_LEVEL += 1
         if NESTING_LEVEL < 2:
             for f in self.pgtype.fields():
                 field_name = f.name
                 try:
-                    if hasattr(self.__class__, "skipped_fields") and field_name in getattr(
+                    if hasattr(
                         self.__class__, "skipped_fields"
-                    ):
+                    ) and field_name in getattr(self.__class__, "skipped_fields"):
                         continue
 
                     if (
